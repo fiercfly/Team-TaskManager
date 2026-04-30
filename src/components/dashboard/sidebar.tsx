@@ -56,9 +56,11 @@ export function Sidebar({ projects }: { projects: any[] }) {
         <div className="bg-white/5 rounded-xl p-4 space-y-3">
           <div className="flex items-center justify-between">
             <h4 className="text-xs font-semibold text-white/40 uppercase tracking-wider">Projects</h4>
-            <Button variant="ghost" size="icon" className="h-4 w-4 text-white/40 hover:text-white">
-              <PlusCircle className="h-4 w-4" />
-            </Button>
+            <Link href="/dashboard/projects">
+              <Button variant="ghost" size="icon" className="h-4 w-4 text-white/40 hover:text-white">
+                <PlusCircle className="h-4 w-4" />
+              </Button>
+            </Link>
           </div>
           <div className="space-y-1">
             {projects.map((project) => (

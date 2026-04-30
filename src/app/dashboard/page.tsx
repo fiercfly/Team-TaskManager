@@ -1,8 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { auth } from "@/auth";
 import { db } from "@/db";
-import { tasks } from "@/db/schema";
-import { count, eq, sql } from "drizzle-orm";
+import { tasks, projectMembers } from "@/db/schema";
+import { count, eq, sql, and } from "drizzle-orm";
 import { 
   CheckCircle2, 
   Clock, 
@@ -14,14 +14,42 @@ import {
 export default async function DashboardPage() {
   const session = await auth();
   
-  const [totalTasksCount] = await db.select({ value: count() }).from(tasks);
-  const [todoTasksCount] = await db.select({ value: count() }).from(tasks).where(eq(tasks.status, "TODO"));
-  const [inProgressTasksCount] = await db.select({ value: count() }).from(tasks).where(eq(tasks.status, "IN_PROGRESS"));
-  const [doneTasksCount] = await db.select({ value: count() }).from(tasks).where(eq(tasks.status, "DONE"));
+  const [totalTasksCount] = await db.select({ value: count() })
+    .from(tasks)
+    .innerJoin(projectMembers, eq(tasks.projectId, projectMembers.projectId))
+    .where(eq(projectMembers.userId, session.user.id));
+
+  const [todoTasksCount] = await db.select({ value: count() })
+    .from(tasks)
+    .innerJoin(projectMembers, eq(tasks.projectId, projectMembers.projectId))
+    .where(and(
+      eq(projectMembers.userId, session.user.id),
+      eq(tasks.status, "TODO")
+    ));
+
+  const [inProgressTasksCount] = await db.select({ value: count() })
+    .from(tasks)
+    .innerJoin(projectMembers, eq(tasks.projectId, projectMembers.projectId))
+    .where(and(
+      eq(projectMembers.userId, session.user.id),
+      eq(tasks.status, "IN_PROGRESS")
+    ));
+
+  const [doneTasksCount] = await db.select({ value: count() })
+    .from(tasks)
+    .innerJoin(projectMembers, eq(tasks.projectId, projectMembers.projectId))
+    .where(and(
+      eq(projectMembers.userId, session.user.id),
+      eq(tasks.status, "DONE")
+    ));
   
   const [overdueTasksCount] = await db.select({ value: count() })
     .from(tasks)
-    .where(sql`${tasks.status} != 'DONE' AND ${tasks.dueDate} < now()`);
+    .innerJoin(projectMembers, eq(tasks.projectId, projectMembers.projectId))
+    .where(and(
+      eq(projectMembers.userId, session.user.id),
+      sql`${tasks.status} != 'DONE' AND ${tasks.dueDate} < now()`
+    ));
 
   const stats = [
     { label: "Total Tasks", value: totalTasksCount.value, icon: ListTodo, color: "text-blue-400" },
