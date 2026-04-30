@@ -13,17 +13,20 @@ import {
 
 export default async function DashboardPage() {
   const session = await auth();
+  const userId = session?.user?.id;
+
+  if (!userId) return null;
   
   const [totalTasksCount] = await db.select({ value: count() })
     .from(tasks)
     .innerJoin(projectMembers, eq(tasks.projectId, projectMembers.projectId))
-    .where(eq(projectMembers.userId, session.user.id));
+    .where(eq(projectMembers.userId, userId));
 
   const [todoTasksCount] = await db.select({ value: count() })
     .from(tasks)
     .innerJoin(projectMembers, eq(tasks.projectId, projectMembers.projectId))
     .where(and(
-      eq(projectMembers.userId, session.user.id),
+      eq(projectMembers.userId, userId),
       eq(tasks.status, "TODO")
     ));
 
@@ -31,7 +34,7 @@ export default async function DashboardPage() {
     .from(tasks)
     .innerJoin(projectMembers, eq(tasks.projectId, projectMembers.projectId))
     .where(and(
-      eq(projectMembers.userId, session.user.id),
+      eq(projectMembers.userId, userId),
       eq(tasks.status, "IN_PROGRESS")
     ));
 
@@ -39,7 +42,7 @@ export default async function DashboardPage() {
     .from(tasks)
     .innerJoin(projectMembers, eq(tasks.projectId, projectMembers.projectId))
     .where(and(
-      eq(projectMembers.userId, session.user.id),
+      eq(projectMembers.userId, userId),
       eq(tasks.status, "DONE")
     ));
   
@@ -47,7 +50,7 @@ export default async function DashboardPage() {
     .from(tasks)
     .innerJoin(projectMembers, eq(tasks.projectId, projectMembers.projectId))
     .where(and(
-      eq(projectMembers.userId, session.user.id),
+      eq(projectMembers.userId, userId),
       sql`${tasks.status} != 'DONE' AND ${tasks.dueDate} < now()`
     ));
 
