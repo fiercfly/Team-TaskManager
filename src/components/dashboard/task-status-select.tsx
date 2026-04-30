@@ -8,7 +8,8 @@ import { toast } from "sonner";
 export function TaskStatusSelect({ taskId, projectId, initialStatus }: { taskId: string, projectId: string, initialStatus: string }) {
   const [loading, setLoading] = useState(false);
 
-  async function handleStatusChange(value: string) {
+  async function handleStatusChange(value: string | null) {
+    if (!value) return;
     setLoading(true);
     const result = await updateTaskStatus(taskId, projectId, value);
     setLoading(false);

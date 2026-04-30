@@ -39,4 +39,28 @@ A simple full-stack task management web application built for teams to collabora
 
 ## Deployment
 
-Deploy to Vercel or Railway by connecting your GitHub repo and adding the environment variables.
+### Vercel (Recommended)
+1. Push your code to GitHub.
+2. Connect your repo to [Vercel](https://vercel.com).
+3. Set the following environment variables in the Vercel Dashboard:
+   - `DATABASE_URL`: Your Neon PostgreSQL connection string.
+   - `AUTH_SECRET`: A secure random string (generate one using `openssl rand -base64 32`).
+4. Click **Deploy**.
+
+### Render
+1. Create a new **Web Service** on [Render](https://render.com).
+2. Connect your GitHub repository.
+3. Set the following configurations:
+   - **Build Command**: `npm install && npm run build`
+   - **Start Command**: `npm run start`
+4. Add Environment Variables:
+   - `DATABASE_URL`: Your Neon PostgreSQL connection string.
+   - `AUTH_SECRET`: Your secure secret.
+5. Deploy.
+
+### Database Setup
+Before the app works, ensure you sync the database schema:
+```bash
+npm run db:push
+```
+(You can run this locally while pointing to your production `DATABASE_URL`)
