@@ -5,18 +5,20 @@ const { auth } = NextAuth(authConfig);
 
 export default auth((req) => {
   const isLoggedIn = !!req.auth;
-  const isOnDashboard = req.nextUrl.pathname.startsWith("/dashboard");
-  const isOnAuth = req.nextUrl.pathname.startsWith("/login") || req.nextUrl.pathname.startsWith("/signup");
+  const { nextUrl } = req;
 
-  if (isOnDashboard) {
-    if (!isLoggedIn) return Response.redirect(new URL("/login", req.nextUrl));
-    return;
+  const isDashboardRoute = nextUrl.pathname.startsWith("/dashboard");
+  const isAuthRoute = nextUrl.pathname.startsWith("/login") || nextUrl.pathname.startsWith("/signup");
+
+  if (isDashboardRoute && !isLoggedIn) {
+    return Response.redirect(new URL("/login", nextUrl));
   }
 
-  if (isOnAuth) {
-    if (isLoggedIn) return Response.redirect(new URL("/dashboard", req.nextUrl));
-    return;
+  if (isAuthRoute && isLoggedIn) {
+    return Response.redirect(new URL("/dashboard", nextUrl));
   }
+
+  return;
 });
 
 export const config = {
